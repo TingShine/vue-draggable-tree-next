@@ -1,7 +1,7 @@
 <template>
   <input
     ref="inputField"
-    type="text"
+    type="boolean"
     class="rounded-sm py-0.5 px-2"
     :value="modelValue"
     @keyup.enter="handleChange"
@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, type PropType } from "vue";
 
 const props = defineProps({
   modelValue: {
@@ -20,6 +20,10 @@ const props = defineProps({
   type: {
     type: String,
     default: "String",
+  },
+  autoFocus: {
+    type: Boolean as PropType<boolean>,
+    default: true,
   },
 });
 
@@ -31,7 +35,7 @@ const handleChange = (e: Event) => {
 
 const inputField = ref<null | Element>(null);
 onMounted(() => {
-  if (inputField.value) {
+  if (props.autoFocus && inputField.value) {
     // @ts-ignore
     inputField.value.focus();
   }
