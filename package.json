@@ -7,7 +7,7 @@
     "url": "https://github.com/TingShine"
   },
   "repository": {
-    "url": ""
+    "url": "https://github.com/TingShine/vue-draggable-tree-next"
   },
   "scripts": {
     "dev": "vite",
@@ -45,5 +45,8 @@
     "vite-svg-loader": "^4.0.0",
     "vitest": "^0.25.6",
     "vue-tsc": "^1.0.12"
+  },
+  "peerDependencies": {
+    "tdesign-vue-next": "^1.0.4"
   }
 }
