@@ -1,20 +1,47 @@
 <template>
-  <input
-    ref="inputField"
-    type="boolean"
-    class="rounded-sm py-0.5 px-2"
-    :value="modelValue"
-    @keyup.enter="handleChange"
-    @focusout="handleChange"
-  />
+  <!-- 文本输入框 -->
+  <t-input
+    v-if="type === 'String'"
+    :defaultValue="modelValue"
+    autofocus
+    @enter="(value) => handleOperation(value, 'enter')"
+    @blur="(value) => handleOperation(value, 'blur')"
+    @change="(value) => handleChange(value)"
+  ></t-input>
+  <!-- 数字输入框 -->
+  <t-input-number
+    v-else-if="type === 'Number'"
+    :defaultValue="modelValue"
+    autofocus
+    @enter="(value) => handleOperation(value, 'enter')"
+    @blur="(value) => handleOperation(value, 'blur')"
+    @change="(value) => handleChange(value)"
+  ></t-input-number>
+  <!-- 开关 -->
+  <t-switch
+    v-else-if="type === 'Boolean'"
+    :defaultValue="true"
+    size="large"
+    @change="(value) => handleChange(value)"
+  >
+    <template #label="slotProps">
+      {{ slotProps.value ? "true" : "false" }}
+    </template>
+  </t-switch>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref, type PropType } from "vue";
+import type { PropType } from "vue";
+import {
+  Input as TInput,
+  InputNumber as TInputNumber,
+  Switch as TSwitch,
+  type InputNumberValue,
+  type InputValue,
+} from "tdesign-vue-next";
 
 const props = defineProps({
   modelValue: {
-    type: String,
     default: "",
   },
   type: {
@@ -25,19 +52,25 @@ const props = defineProps({
     type: Boolean as PropType<boolean>,
     default: true,
   },
+  blurFinish: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const $emit = defineEmits(["update:modelValue", "finish"]);
-const handleChange = (e: Event) => {
-  // @ts-ignore
-  $emit("finish", e?.target?.value || props.modelValue);
+const handleOperation = (
+  value: InputValue | InputNumberValue,
+  type: "enter" | "blur"
+) => {
+  if (type === "blur" && !props.blurFinish) {
+    return;
+  }
+  $emit("update:modelValue", value);
+  $emit("finish", value);
 };
 
-const inputField = ref<null | Element>(null);
-onMounted(() => {
-  if (props.autoFocus && inputField.value) {
-    // @ts-ignore
-    inputField.value.focus();
-  }
-});
+const handleChange = (value: any) => {
+  $emit("update:modelValue", value);
+};
 </script>
