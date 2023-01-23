@@ -39,6 +39,13 @@ const list = ref([
             type: "String",
             children: [],
           },
+          {
+            id: 7,
+            key: "Lord Logo",
+            type: "String",
+            value: '测试',
+            children: [],
+          },
         ],
       },
     ],

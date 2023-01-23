@@ -14,55 +14,83 @@
         :class="{ [element.bg]: !!element.isShowBg }"
       >
         <div class="p-1">
-          <div
-            class="flex h-8 content-center node-item text-lg"
-            @mouseenter="handleMouseEnterItem(element)"
-            @mouseleave="handleMouseLeaveItem(element)"
-          >
-            <!-- 展开收缩 -->
+          <!-- 新增模式 -->
+          <template v-if="element.temp">
+            <div>
+              <cascader-input
+                @delete="handleDeleteNode(element, list)"
+                @custom-add="(params) => handleCustomAdd(element, list, params)"
+              ></cascader-input>
+            </div>
+          </template>
+          <template v-else>
             <div
-              v-if="
-                (element.type === 'Array' || element.type === 'Object') &&
-                element.children
-              "
-              class="relative h-full mr-2 hover:cursor-pointer"
-              @click="handleClick(element)"
+              class="flex h-8 content-center node-item text-lg"
+              @mouseenter="handleMouseEnterItem(element)"
+              @mouseleave="handleMouseLeaveItem(element)"
             >
-              <expand-more
-                v-show="!element.hideChildren"
-                class="top-0 left-0 translate-y-1"
-              />
-              <expand-less
-                v-show="!!element.hideChildren"
-                class="top-0 left-0 translate-y-1"
-              />
-            </div>
-
-            <!-- 结点key -->
-            <div class="hover:cursor-pointer">
-              <span
-                v-if="!element.isKeyEditing"
-                @click="handleDoubleClick(element)"
-                >{{ element.key }}</span
+              <!-- 展开收缩 -->
+              <div
+                v-if="
+                  (element.type === 'Array' || element.type === 'Object') &&
+                  element.children
+                "
+                class="flex vertical-center h-full mr-2 hover:cursor-pointer"
+                @click="handleClick(element)"
               >
-              <input-field
-                v-else
-                :model-value="element.key"
-                @finish="(value) => handleFinishEdit(element, value)"
-              ></input-field>
-              <span v-if="element.type === 'Array'"> []</span>
-              <span v-else-if="element.type === 'Object'"> {}</span>
-            </div>
+                <caret-down-small-icon
+                  v-show="!element.hideChildren"
+                  size="25px"
+                  class="top-0 left-0 translate-y-1 hover:text-sky-600"
+                />
+                <caret-up-small-icon
+                  v-show="!!element.hideChildren"
+                  size="25px"
+                  class="top-0 left-0 translate-y-1 hover:text-sky-600"
+                />
+              </div>
 
-            <!-- 工具栏 -->
-            <default-tool-bar
-              :tools="getToolBar(element.type)"
-              :visible="element.showToolBar"
-              @choose="(type) => handleChooseTool(type, element, list)"
-            >
-              <slot name="tools" :element="element" :parent="list"> </slot>
-            </default-tool-bar>
-          </div>
+              <!-- 结点key -->
+              <div class="flex hover:cursor-pointer">
+                <span
+                  v-if="!element.isKeyEditing"
+                  @click="handleDoubleClick(element)"
+                  >{{ element.key }}</span
+                >
+                <input-field
+                  v-else
+                  v-model="element.key"
+                  @finish="element.isKeyEditing = false"
+                ></input-field>
+                <span v-if="element.type === 'Array'" class="ml-1"> []</span>
+                <span v-else-if="element.type === 'Object'" class="ml-1">
+                  {}</span
+                >
+              </div>
+
+              <!-- 值展示 -->
+              <template
+                v-if="element.type !== 'Array' && element.type !== 'Object'"
+              >
+                <div class="ml-2">
+                  <span class="mr-1 text-lg font-bold">:</span>
+                  <t-tag theme="primary" variant="light">
+                    {{ element.type }}
+                  </t-tag>
+                  <span class="ml-1 text-sm">{{ element.value || "" }}</span>
+                </div>
+              </template>
+
+              <!-- 工具栏 -->
+              <default-tool-bar
+                :tools="getToolBar(element.type)"
+                :visible="element.showToolBar"
+                @choose="(type) => handleChooseTool(type, element, list)"
+              >
+                <slot name="tools" :element="element" :parent="list"> </slot>
+              </default-tool-bar>
+            </div>
+          </template>
 
           <!-- 子嵌套 -->
           <template v-if="element.type === 'Array'">
@@ -80,7 +108,8 @@
                     (type) => handleChooseTool(type, childElement, parent)
                   "
                 >
-                  <slot name="tools" :element="childElement" :parent="parent"> </slot>
+                  <slot name="tools" :element="childElement" :parent="parent">
+                  </slot>
                 </default-tool-bar>
               </template>
             </nested-tree>
@@ -100,7 +129,8 @@
                     (type) => handleChooseTool(type, childElement, parent)
                   "
                 >
-                  <slot name="tools" :element="childElement" :parent="parent"> </slot>
+                  <slot name="tools" :element="childElement" :parent="parent">
+                  </slot>
                 </default-tool-bar>
               </template>
             </nested-tree>
@@ -117,9 +147,11 @@ import DefaultToolBar from "../default-toolbar/index.vue";
 import InputField from "../input-field/index.vue";
 import { useDoubleClick } from "../../utils/double-click";
 import { reactive, type PropType, computed, ref } from "vue";
-import ExpandMore from "@/assets/icons/expand-more.svg";
-import ExpandLess from "@/assets/icons/expand-less.svg";
-import type { INodeItem } from "./type";
+import type { INodeItem, ITempNode } from "./type";
+import { CaretDownSmallIcon, CaretUpSmallIcon } from "tdesign-icons-vue-next";
+import CascaderInput from "../cascader-input/index.vue";
+import { useHover, useTool } from ".";
+import { Tag as TTag } from "tdesign-vue-next";
 
 const props = defineProps({
   list: {
@@ -132,13 +164,6 @@ const props = defineProps({
   },
 });
 
-// 判断是否叶子结点
-const isLeafNode = computed(
-  () =>
-    props.list.length === 1 &&
-    (!props.list[0].children || props.list[0].children.length === 0)
-);
-
 //
 const dragDefaultOptions = reactive({
   animation: 0,
@@ -149,6 +174,8 @@ const dragDefaultOptions = reactive({
 });
 const dragOptions = computed(() => {
   if (props.list.length === 1) {
+    console.log(props.list);
+
     const lastItem = props.list[0];
     if (lastItem.type !== "Array" || lastItem.type !== "Object") {
       return Object.assign({ put: false }, dragDefaultOptions);
@@ -171,59 +198,17 @@ const handleClick = (element: INodeItem) => {
   element.hideChildren = !element.hideChildren;
 };
 
-// 鼠标移入目标区域
-const onMouseEnter = (element: INodeItem) => {
-  element.isShowBg = true;
-};
+//
+const handleCustomAdd = (element, list, params) => {};
 
-// 鼠标移出目标区域
-const onMouseLeave = (element: INodeItem) => {
-  element.isShowBg = false;
-};
-
-// 鼠标移入目标行
-const handleMouseEnterItem = (element: INodeItem) => {
-  element.showToolBar = true;
-};
-
-// 鼠标移出目标行
-const handleMouseLeaveItem = (element: INodeItem) => {
-  element.showToolBar = false;
-};
-
-// 点击工具栏
-const handleChooseTool = (
-  type: string,
-  element: INodeItem,
-  parentList?: INodeItem[]
-) => {
-  switch (type) {
-    case "edit":
-      handleEditKey(element);
-      break;
-    case "delete":
-      handleDeleteNode(element, parentList);
-      break;
-  }
-};
-
-const handleDeleteNode = (element: INodeItem, parent: INodeItem[] = []) => {
-  const index = parent.findIndex((item) => item.id === element.id);
-  if (index !== -1) {
-    parent.splice(index, 1);
-  }
-};
-
-const handleEditKey = (element: INodeItem) => {
-  element.isKeyEditing = true;
-};
-
+const {
+  handleMouseEnterItem,
+  handleMouseLeaveItem,
+  onMouseEnter,
+  onMouseLeave,
+} = useHover();
+const { handleChooseTool, handleEditKey, handleDeleteNode } = useTool();
 const { handleDoubleClick } = useDoubleClick(handleEditKey);
-
-const handleFinishEdit = (element: INodeItem, value: string) => {
-  value && (element.key = value);
-  element.isKeyEditing = false;
-};
 </script>
 
 <style scoped>
