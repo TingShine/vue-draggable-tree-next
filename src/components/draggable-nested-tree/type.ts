@@ -1,10 +1,22 @@
-type NodeItemType = "Array" | "Object" | "String" | "Number" | "Boolean";
+type NodeItemType =
+  | "Array"
+  | "Object"
+  | "String"
+  | "Number"
+  | "Boolean"
+  | "Custom";
+
+export interface ITempNode extends IInitDataOptionalItem {
+  id: number;
+  temp: boolean;
+  key?: string;
+  type?: NodeItemType;
+}
 
 export interface IInitDataItem extends IInitDataOptionalItem {
   id: number;
   key: string;
   type: NodeItemType;
-  children?: INodeItem[];
 }
 
 export interface IInitDataOptionalItem {
@@ -16,6 +28,8 @@ export interface IInitDataOptionalItem {
   hideChildren?: boolean;
   temp?: boolean;
   customData?: Object;
+  children?: Array<IInitDataItem | ITempNode>;
+  value?: string | number | boolean;
 }
 
 export type INodeItem = IInitDataItem;
