@@ -18,8 +18,11 @@
           <template v-if="element.temp">
             <div>
               <cascader-input
+                @submit="(params) => handleAddNode(element, list, params)"
                 @delete="handleDeleteNode(element, list)"
-                @custom-add="(params) => handleCustomAdd(element, list, params)"
+                @custom-add="
+                  (params) => onCustomAdd(element, list, parentType, params)
+                "
               ></cascader-input>
             </div>
           </template>
@@ -62,9 +65,11 @@
                   v-model="element.key"
                   @finish="element.isKeyEditing = false"
                 ></input-field>
-                <span v-if="element.type === 'Array'" class="ml-1"> []</span>
+                <span v-if="element.type === 'Array'" class="ml-1">
+                  <t-tag theme="primary" variant="light">[]</t-tag></span
+                >
                 <span v-else-if="element.type === 'Object'" class="ml-1">
-                  {}</span
+                  <t-tag theme="primary" variant="light">{}</t-tag></span
                 >
               </div>
 
@@ -99,6 +104,7 @@
               class="item-sub ml-4"
               :list="element.children"
               parent-type="Array"
+              @custom-add="handleCustomAdd"
             >
               <template #tools="{ element: childElement, parent }">
                 <default-tool-bar
@@ -120,6 +126,7 @@
               class="item-sub ml-4"
               :list="element.children"
               parent-type="Object"
+              @custom-add="handleCustomAdd"
             >
               <template #tools="{ element: childElement, parent }">
                 <default-tool-bar
@@ -150,8 +157,9 @@ import { reactive, type PropType, computed, ref } from "vue";
 import type { INodeItem, ITempNode } from "./type";
 import { CaretDownSmallIcon, CaretUpSmallIcon } from "tdesign-icons-vue-next";
 import CascaderInput from "../cascader-input/index.vue";
-import { useHover, useTool } from ".";
-import { Tag as TTag } from "tdesign-vue-next";
+import { initNodeItemData, useAddNode, useHover, useTool } from ".";
+import { Tag as TTag, MessagePlugin } from "tdesign-vue-next";
+import { useColor } from "@/utils/color-random";
 
 const props = defineProps({
   list: {
@@ -163,6 +171,8 @@ const props = defineProps({
     default: "",
   },
 });
+
+const $emit = defineEmits(["customAdd"]);
 
 //
 const dragDefaultOptions = reactive({
@@ -198,8 +208,7 @@ const handleClick = (element: INodeItem) => {
   element.hideChildren = !element.hideChildren;
 };
 
-//
-const handleCustomAdd = (element, list, params) => {};
+const { onCustomAdd, handleAddNode, handleCustomAdd } = useAddNode($emit);
 
 const {
   handleMouseEnterItem,

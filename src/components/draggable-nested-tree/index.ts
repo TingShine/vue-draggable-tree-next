@@ -1,4 +1,6 @@
-import type { IInitDataOptionalItem, INodeItem } from "./type";
+import { useColor } from "@/utils/color-random";
+import { MessagePlugin } from "tdesign-vue-next";
+import type { IInitDataOptionalItem, INodeItem, ITempNode } from "./type";
 
 export const initNodeItemData: IInitDataOptionalItem = {
   isKeyEditing: false,
@@ -27,7 +29,7 @@ export const useTool = () => {
         element.children = [];
       }
 
-      const firstElement = element.children[0]
+      const firstElement = element.children[0];
       if (firstElement && firstElement.temp) {
         return;
       }
@@ -65,7 +67,7 @@ export const useTool = () => {
   return {
     handleChooseTool,
     handleEditKey,
-    handleDeleteNode
+    handleDeleteNode,
   };
 };
 
@@ -97,4 +99,66 @@ export const useHover = () => {
     handleMouseEnterItem,
     handleMouseLeaveItem,
   };
+};
+
+export const useAddNode = ($emit: Function) => {
+  const onCustomAdd = (
+    element: INodeItem,
+    list: INodeItem[],
+    parentType: "Array" | "Object",
+    params: any
+  ) => {
+    const newParams = { ...params, ...initNodeItemData, parentType };
+    handleCustomAdd(element, list, newParams);
+  };
+
+  const handleCustomAdd = (
+    element: INodeItem,
+    list: INodeItem[],
+    params: any
+  ) => {
+    $emit("customAdd", element, list, params);
+  };
+
+  const handleAddNode = (
+    element: ITempNode,
+    list: INodeItem[],
+    params: any
+  ) => {
+    console.log(element, list, params);
+    const { key, type } = params;
+
+    if (list.some((node) => node.key === key && !node.temp)) {
+      MessagePlugin.error("当前key值重复，无法添加");
+      return;
+    }
+
+    switch (type) {
+      case "Array":
+        addArrayOrObjectNode(element, params);
+        break;
+      case "Object":
+        addArrayOrObjectNode(element, params);
+        break;
+    }
+  };
+
+  const { getRandomColor } = useColor("bg");
+  const addArrayOrObjectNode = (element: ITempNode, params: any) => {
+    const { type, key } = params;
+    Object.assign(element, {
+      ...initNodeItemData,
+      key,
+      type,
+      children: [],
+      bg: getRandomColor(3),
+      temp: false,
+    });
+  };
+
+  return {
+    onCustomAdd,
+    handleCustomAdd,
+    handleAddNode,
+  }
 };

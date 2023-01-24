@@ -1,5 +1,5 @@
 <template>
-  <nested-tree :list="treeData"></nested-tree>
+  <nested-tree :list="treeData" @custom-add="handleCustomAdd"></nested-tree>
   <json-displayer :value="treeData" title="对应数据"></json-displayer>
 </template>
 
@@ -9,6 +9,7 @@ import { defineComponent, ref, onMounted, toRefs, type PropType } from "vue";
 import { useColor } from "../../utils/color-random";
 import JsonDisplayer from "../json-displayer/index.vue";
 import { initNodeItemData } from ".";
+import type { INodeItem } from "./type";
 
 export default defineComponent({
   name: "DraggableTree",
@@ -51,8 +52,17 @@ export default defineComponent({
       });
     };
 
+    const handleCustomAdd = (
+      element: INodeItem,
+      list: INodeItem[],
+      params: any
+    ) => {
+      console.log(element, list, params);
+    };
+
     return {
       treeData,
+      handleCustomAdd,
     };
   },
 });

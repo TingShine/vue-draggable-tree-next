@@ -35,13 +35,13 @@ const list = ref([
         children: [
           {
             id: 4,
-            key: "Lord Farquad",
+            key: "LordFarquad",
             type: "String",
             children: [],
           },
           {
             id: 7,
-            key: "Lord Logo",
+            key: "LordLogo",
             type: "String",
             value: '测试',
             children: [],
