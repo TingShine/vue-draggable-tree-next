@@ -67,10 +67,22 @@
                   element.key
                 }}</span>
                 <span v-if="element.type === 'Array'" class="ml-1">
-                  <t-tag theme="primary" variant="light">[]</t-tag></span
-                >
+                  <t-tag theme="primary" variant="light">
+                    [<span v-show="element.hideChildren"
+                      ><span v-show="element.children.length" class="font-bold"
+                        >...</span
+                      >]
+                    </span>
+                  </t-tag>
+                </span>
                 <span v-else-if="element.type === 'Object'" class="ml-1">
-                  <t-tag theme="primary" variant="light">{}</t-tag></span
+                  <t-tag theme="primary" variant="light"
+                    >{<span v-show="element.hideChildren"
+                      ><span v-show="element.children.length" class="font-bold"
+                        >...</span
+                      >}</span
+                    ></t-tag
+                  ></span
                 >
               </div>
 
@@ -79,7 +91,9 @@
                 v-if="element.type !== 'Array' && element.type !== 'Object'"
               >
                 <div>
-                  <span v-show="element.key" class="mr-1 text-lg font-bold">:</span>
+                  <span v-show="element.key" class="mr-1 text-lg font-bold"
+                    >:</span
+                  >
                   <t-tag theme="primary" variant="light">
                     {{ element.type }}
                   </t-tag>
@@ -120,6 +134,12 @@
                 </default-tool-bar>
               </template>
             </nested-tree>
+            <t-tag
+              v-show="!element.hideChildren"
+              theme="primary"
+              variant="light"
+              >]</t-tag
+            >
           </template>
           <template v-else-if="element.type === 'Object'">
             <nested-tree
@@ -142,6 +162,12 @@
                 </default-tool-bar>
               </template>
             </nested-tree>
+            <t-tag
+              v-show="!element.hideChildren"
+              theme="primary"
+              variant="light"
+              >}</t-tag
+            >
           </template>
         </div>
       </div>
