@@ -51,7 +51,7 @@ export const useColor = (prefix: string) => {
 
     const color = colorArr[generateRandomNum(colorArr.length - 1)];
     colorSet.delete(color);
-    return `${prefix ? `${prefix}-` : ""}${color}-${levelPoint[level]}`;
+    return `${prefix ? `${prefix}-` : ""}${color}-${levelPoint[index]}`;
   };
 
   return {
