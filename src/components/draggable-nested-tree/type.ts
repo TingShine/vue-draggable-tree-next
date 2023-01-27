@@ -1,3 +1,5 @@
+import type { IAddNodeType } from "@/utils/config";
+
 type NodeItemType =
   | "Array"
   | "Object"
@@ -32,4 +34,11 @@ export interface IInitDataOptionalItem {
   value?: string | number | boolean;
 }
 
-export type INodeItem = IInitDataItem;
+export type INodeItem = IInitDataItem | ITempNode;
+
+export interface IAddNodeParams {
+  type: IAddNodeType;
+  value: string | number | boolean;
+  key?: string;
+  parentType?: "Array" | "Object";
+}

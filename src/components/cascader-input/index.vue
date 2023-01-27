@@ -5,38 +5,48 @@
       class="mr-2 hover:cursor-pointer hover:text-slate-400"
       @click="handleDelete"
     ></close-icon>
-    <t-form ref="formRef" labelWidth="0" class="flex">
-      <!-- key -->
-      <div class="flex mr-2 items-center">
+    <t-form ref="formRef" labelWidth="0" class="flex items-center">
+      <!-- 类型选择 -->
+      <t-select
+        v-if="!form.type"
+        v-model="form.type"
+        :options="options"
+        placeholder="请选择值类型"
+        @change="handleSelectType"
+      ></t-select>
+      <t-tag
+        v-show="form.type"
+        theme="primary"
+        variant="light"
+        class="mr-1 hover:cursor-pointer"
+        @click="handleDoubleClick"
+      >
+        {{ form.type }}
+      </t-tag>
+      <!-- key值，仅键值对、对象出现 -->
+      <div v-if="keyVisible" class="flex mr-2 items-center">
         <t-form-item name="key">
           <t-input v-model="form.key" placeholder="请输入key值"></t-input>
         </t-form-item>
-        <span class="text-lg font-bold mx-1">:</span>
-      </div>
-      <!-- value -->
-      <div class="flex items-center">
-        <t-select
-          v-if="!form.type"
-          v-model="form.type"
-          :options="options"
-          placeholder="请选择值类型"
-          @change="handleSelectType"
-        ></t-select>
-        <t-tag
-          v-show="form.type"
-          theme="primary"
-          variant="light"
-          class="mr-1 hover:cursor-pointer"
-          @click="handleDoubleClick"
+        <span
+          v-show="keyVisible && valueVisible"
+          class="text-lg font-bold mx-1"
         >
-          {{ form.type }}
-        </t-tag>
+          :
+        </span>
+      </div>
+      <div class="flex items-center">
+        <!-- value值，仅数值、字符串、布尔值、键值对出现 -->
         <input-field
-          v-if="form.type"
+          v-if="valueVisible"
           v-model="form.value"
-          :type="form.type"
+          :type="computedType(form.type)"
         ></input-field>
-        <t-button type="submit" class="ml-4" @click="handleSubmit"
+        <t-button
+          v-if="form.type"
+          type="submit"
+          class="ml-4"
+          @click="handleSubmit"
           >确认</t-button
         >
       </div>
@@ -55,11 +65,18 @@ import {
   MessagePlugin,
   type SelectValue,
 } from "tdesign-vue-next";
-import { ref, reactive, toRaw } from "vue";
+import { ref, reactive, toRaw, computed } from "vue";
 import { cascaderSelectOptions } from "@/utils/config";
 import InputField from "../input-field/index.vue";
 import { useDoubleClick } from "@/utils/double-click";
 import { CloseIcon } from "tdesign-icons-vue-next";
+
+const props = defineProps({
+  parentType: {
+    type: String,
+    default: "Object",
+  },
+});
 
 const $emit = defineEmits(["delete", "submit", "customAdd"]);
 const form = reactive<any>({
@@ -67,6 +84,21 @@ const form = reactive<any>({
   type: "",
   value: "",
 });
+const keyVisible = computed(
+  () =>
+    form.type &&
+    (["Object", "Array"].includes(form.type) ||
+      form.type.startsWith("KeyValue"))
+);
+const valueVisible = computed(
+  () =>
+    form.type &&
+    (["Number", "String", "Boolean"].includes(form.type) ||
+      form.type.startsWith("KeyValue"))
+);
+const computedType = (type: string) =>
+  type.startsWith("KeyValue") ? type.split("KeyValue_")[1] : type;
+
 const options = ref(cascaderSelectOptions);
 const handleChangeType = () => {
   form.type = "";
@@ -97,9 +129,11 @@ const handleSubmit = () => {
     return;
   }
 
-  if (!key || !/^[0-9a-zA-Z_]+$/.test(key as string)) {
-    MessagePlugin.error("key值为必填项，支持英文、数字和下划线");
-    return;
+  if (["Object", "Array"].includes(type) || type.startsWith("KeyValue")) {
+    if (!key || !/^[0-9a-zA-Z_]+$/.test(key as string)) {
+      MessagePlugin.error("key值为必填项，支持英文、数字和下划线");
+      return;
+    }
   }
 
   if (form.type === "Custom") {

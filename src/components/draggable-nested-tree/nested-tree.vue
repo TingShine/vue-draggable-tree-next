@@ -18,7 +18,15 @@
           <template v-if="element.temp">
             <div>
               <cascader-input
-                @submit="(params) => handleAddNode(element, list, params)"
+                :parent-type="element.type"
+                @submit="
+                  (params) =>
+                    handleAddNode(
+                      element,
+                      list,
+                      Object.assign({ parentType }, params)
+                    )
+                "
                 @delete="handleDeleteNode(element, list)"
                 @custom-add="
                   (params) => onCustomAdd(element, list, parentType, params)
@@ -54,17 +62,10 @@
               </div>
 
               <!-- 结点key -->
-              <div class="flex hover:cursor-pointer">
-                <span
-                  v-if="!element.isKeyEditing"
-                  @click="handleDoubleClick(element)"
-                  >{{ element.key }}</span
-                >
-                <input-field
-                  v-else
-                  v-model="element.key"
-                  @finish="element.isKeyEditing = false"
-                ></input-field>
+              <div v-show="element.key" class="flex hover:cursor-pointer mr-2">
+                <span @click="handleDoubleClick(element)">{{
+                  element.key
+                }}</span>
                 <span v-if="element.type === 'Array'" class="ml-1">
                   <t-tag theme="primary" variant="light">[]</t-tag></span
                 >
@@ -77,12 +78,12 @@
               <template
                 v-if="element.type !== 'Array' && element.type !== 'Object'"
               >
-                <div class="ml-2">
-                  <span class="mr-1 text-lg font-bold">:</span>
+                <div>
+                  <span v-show="element.key" class="mr-1 text-lg font-bold">:</span>
                   <t-tag theme="primary" variant="light">
                     {{ element.type }}
                   </t-tag>
-                  <span class="ml-1 text-sm">{{ element.value || "" }}</span>
+                  <span class="ml-1 text-sm">{{ element.value }}</span>
                 </div>
               </template>
 
@@ -151,15 +152,13 @@
 <script lang="ts" setup>
 import Draggable from "vuedraggable";
 import DefaultToolBar from "../default-toolbar/index.vue";
-import InputField from "../input-field/index.vue";
 import { useDoubleClick } from "../../utils/double-click";
 import { reactive, type PropType, computed, ref } from "vue";
-import type { INodeItem, ITempNode } from "./type";
+import type { INodeItem } from "./type";
 import { CaretDownSmallIcon, CaretUpSmallIcon } from "tdesign-icons-vue-next";
 import CascaderInput from "../cascader-input/index.vue";
 import { initNodeItemData, useAddNode, useHover, useTool } from ".";
 import { Tag as TTag, MessagePlugin } from "tdesign-vue-next";
-import { useColor } from "@/utils/color-random";
 
 const props = defineProps({
   list: {

@@ -1,6 +1,12 @@
 import { useColor } from "@/utils/color-random";
+import type { IAddNodeType } from "@/utils/config";
 import { MessagePlugin } from "tdesign-vue-next";
-import type { IInitDataOptionalItem, INodeItem, ITempNode } from "./type";
+import type {
+  IAddNodeParams,
+  IInitDataOptionalItem,
+  INodeItem,
+  ITempNode,
+} from "./type";
 
 export const initNodeItemData: IInitDataOptionalItem = {
   isKeyEditing: false,
@@ -123,7 +129,7 @@ export const useAddNode = ($emit: Function) => {
   const handleAddNode = (
     element: ITempNode,
     list: INodeItem[],
-    params: any
+    params: IAddNodeParams
   ) => {
     console.log(element, list, params);
     const { key, type } = params;
@@ -134,25 +140,114 @@ export const useAddNode = ($emit: Function) => {
     }
 
     switch (type) {
+      case "Number":
+        addBaseNode(element, params);
+        break;
+      case "String":
+        addBaseNode(element, params);
+        break;
+      case "Boolean":
+        addBaseNode(element, params);
+        break;
       case "Array":
-        addArrayOrObjectNode(element, params);
+        addArrayOrObjectNode(element, list, params);
         break;
       case "Object":
-        addArrayOrObjectNode(element, params);
+        addArrayOrObjectNode(element, list, params);
+        break;
+      case "KeyValue_String":
+        addKeyValueNode(element, params);
+        break;
+      case "KeyValue_Number":
+        addKeyValueNode(element, params);
+        break;
+      case "KeyValue_Boolean":
+        addKeyValueNode(element, params);
         break;
     }
   };
 
   const { getRandomColor } = useColor("bg");
-  const addArrayOrObjectNode = (element: ITempNode, params: any) => {
+  const addArrayOrObjectNode = (
+    element: ITempNode,
+    list: INodeItem[],
+    params: any
+  ) => {
     const { type, key } = params;
+
+    if (list.some((node) => node.key === key)) {
+      MessagePlugin.error("当前兄弟节点已存在相同的key值，无法添加");
+      return;
+    }
+
     Object.assign(element, {
       ...initNodeItemData,
       key,
       type,
       children: [],
+      bg: getRandomColor(2),
+    });
+  };
+
+  const addBaseNode = (element: ITempNode, params: IAddNodeParams) => {
+    const { type, value, parentType } = params;
+
+    if (parentType !== "Array") {
+      MessagePlugin.error("当前父节点不为数组，无法添加数值节点");
+      return;
+    }
+
+    switch (type) {
+      case "String":
+        element.value = String(value) || "";
+        break;
+      case "Number":
+        element.value = Number(value) ?? 0;
+        break;
+      case "Boolean":
+        element.value = !!value;
+        break;
+    }
+
+    Object.assign(element, {
+      ...initNodeItemData,
+      type,
       bg: getRandomColor(3),
-      temp: false,
+    });
+  };
+
+  const addKeyValueNode = (element: ITempNode, params: IAddNodeParams) => {
+    const { parentType, type, key, value } = params;
+
+    if (parentType !== "Object") {
+      MessagePlugin.error("当前父节点不为对象，无法添加键值对");
+      return;
+    }
+
+    if (!type.startsWith("KeyValue")) {
+      MessagePlugin.error("当前节点不为键值对");
+      return;
+    }
+
+    const realType = type.split("KeyValue_")[1];
+
+    switch (realType) {
+      case "String":
+        element.value = String(value) || "";
+        break;
+      case "Number":
+        element.value = Number(value) ?? 0;
+        break;
+      case "Boolean":
+        element.value = !!value;
+        break;
+    }
+
+    Object.assign(element, {
+      ...initNodeItemData,
+      type: realType,
+      key,
+      bg: getRandomColor(2),
     });
   };
 
@@ -160,5 +255,5 @@ export const useAddNode = ($emit: Function) => {
     onCustomAdd,
     handleCustomAdd,
     handleAddNode,
-  }
+  };
 };
