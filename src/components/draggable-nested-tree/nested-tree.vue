@@ -8,7 +8,7 @@
   >
     <template #item="{ element }">
       <div
-        class="item-group bg-opacity-75 rounded-md ml-4"
+        class="item-group bg-opacity-75 rounded-md"
         @mouseenter="onMouseEnter(element)"
         @mouseleave="onMouseLeave(element)"
         :class="{ [element.bg]: !!element.isShowBg }"
@@ -18,7 +18,7 @@
           <template v-if="element.temp">
             <div>
               <cascader-input
-                :parent-type="element.type"
+                :parent-type="parentType"
                 @submit="
                   (params) =>
                     handleAddNode(
@@ -116,7 +116,7 @@
           <template v-if="element.type === 'Array'">
             <nested-tree
               v-show="!element.hideChildren"
-              class="item-sub ml-4"
+              class="item-sub ml-8"
               :list="element.children"
               parent-type="Array"
               @custom-add="handleCustomAdd"
@@ -136,6 +136,7 @@
             </nested-tree>
             <t-tag
               v-show="!element.hideChildren"
+              class="ml-8"
               theme="primary"
               variant="light"
               >]</t-tag
@@ -144,7 +145,7 @@
           <template v-else-if="element.type === 'Object'">
             <nested-tree
               v-show="!element.hideChildren"
-              class="item-sub ml-4"
+              class="item-sub ml-8"
               :list="element.children"
               parent-type="Object"
               @custom-add="handleCustomAdd"
@@ -164,6 +165,7 @@
             </nested-tree>
             <t-tag
               v-show="!element.hideChildren"
+              class="ml-6"
               theme="primary"
               variant="light"
               >}</t-tag

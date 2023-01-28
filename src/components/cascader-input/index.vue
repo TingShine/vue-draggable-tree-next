@@ -65,7 +65,7 @@ import {
   MessagePlugin,
   type SelectValue,
 } from "tdesign-vue-next";
-import { ref, reactive, toRaw, computed } from "vue";
+import { ref, reactive, toRaw, computed, onMounted } from "vue";
 import { cascaderSelectOptions } from "@/utils/config";
 import InputField from "../input-field/index.vue";
 import { useDoubleClick } from "@/utils/double-click";
@@ -76,6 +76,23 @@ const props = defineProps({
     type: String,
     default: "Object",
   },
+});
+const options = ref<any[]>([]);
+onMounted(() => {
+  switch (props.parentType) {
+    case "Array":
+      options.value = cascaderSelectOptions.filter(
+        (option) => !option.value.startsWith("KeyValue")
+      );
+      break;
+    case "Object":
+      options.value = cascaderSelectOptions.filter(
+        (option) => !["String", "Number", "Boolean"].includes(option.value)
+      );
+      break;
+    default:
+      options.value = cascaderSelectOptions;
+  }
 });
 
 const $emit = defineEmits(["delete", "submit", "customAdd"]);
@@ -99,7 +116,6 @@ const valueVisible = computed(
 const computedType = (type: string) =>
   type.startsWith("KeyValue") ? type.split("KeyValue_")[1] : type;
 
-const options = ref(cascaderSelectOptions);
 const handleChangeType = () => {
   form.type = "";
 };
