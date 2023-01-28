@@ -54,7 +54,7 @@
                   size="25px"
                   class="top-0 left-0 translate-y-1 hover:text-sky-600"
                 />
-                <caret-up-small-icon
+                <caret-right-small-icon
                   v-show="!!element.hideChildren"
                   size="25px"
                   class="top-0 left-0 translate-y-1 hover:text-sky-600"
@@ -68,20 +68,17 @@
                 }}</span>
                 <span v-if="element.type === 'Array'" class="ml-1">
                   <t-tag theme="primary" variant="light">
-                    [<span v-show="element.hideChildren"
-                      ><span v-show="element.children.length" class="font-bold"
-                        >...</span
-                      >]
-                    </span>
+                    [
+                    <span v-show="element.children.length" class="font-bold"
+                      >...</span
+                    >]
                   </t-tag>
                 </span>
                 <span v-else-if="element.type === 'Object'" class="ml-1">
                   <t-tag theme="primary" variant="light"
-                    >{<span v-show="element.hideChildren"
-                      ><span v-show="element.children.length" class="font-bold"
-                        >...</span
-                      >}</span
-                    ></t-tag
+                    >{<span v-show="element.children.length" class="font-bold"
+                      >...</span
+                    >}</t-tag
                   ></span
                 >
               </div>
@@ -134,13 +131,6 @@
                 </default-tool-bar>
               </template>
             </nested-tree>
-            <t-tag
-              v-show="!element.hideChildren"
-              class="ml-8"
-              theme="primary"
-              variant="light"
-              >]</t-tag
-            >
           </template>
           <template v-else-if="element.type === 'Object'">
             <nested-tree
@@ -163,13 +153,6 @@
                 </default-tool-bar>
               </template>
             </nested-tree>
-            <t-tag
-              v-show="!element.hideChildren"
-              class="ml-6"
-              theme="primary"
-              variant="light"
-              >}</t-tag
-            >
           </template>
         </div>
       </div>
@@ -183,7 +166,10 @@ import DefaultToolBar from "../default-toolbar/index.vue";
 import { useDoubleClick } from "../../utils/double-click";
 import { reactive, type PropType, computed, ref } from "vue";
 import type { INodeItem } from "./type";
-import { CaretDownSmallIcon, CaretUpSmallIcon } from "tdesign-icons-vue-next";
+import {
+  CaretDownSmallIcon,
+  CaretRightSmallIcon,
+} from "tdesign-icons-vue-next";
 import CascaderInput from "../cascader-input/index.vue";
 import { initNodeItemData, useAddNode, useHover, useTool } from ".";
 import { Tag as TTag, MessagePlugin } from "tdesign-vue-next";
