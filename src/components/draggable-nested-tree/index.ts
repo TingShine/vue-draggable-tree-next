@@ -40,6 +40,7 @@ export const useTool = () => {
         return;
       }
 
+      element.hideChildren = false
       element.children?.unshift({
         id: 20,
         temp: true,
@@ -131,7 +132,6 @@ export const useAddNode = ($emit: Function) => {
     list: INodeItem[],
     params: IAddNodeParams
   ) => {
-    console.log(element, list, params);
     const { key, type } = params;
 
     if (list.some((node) => node.key === key && !node.temp)) {
