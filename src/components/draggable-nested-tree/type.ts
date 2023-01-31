@@ -6,6 +6,8 @@ type NodeItemType =
   | "String"
   | "Number"
   | "Boolean"
+  | "Single_Array"
+  | "Single_Object"
   | "Custom";
 
 export interface ITempNode extends IInitDataOptionalItem {
@@ -40,5 +42,5 @@ export interface IAddNodeParams {
   type: IAddNodeType;
   value: string | number | boolean;
   key?: string;
-  parentType?: "Array" | "Object";
+  parentType?: "Array" | "Object" | "Single_Array" | "Single_Object";
 }

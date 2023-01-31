@@ -11,7 +11,7 @@
         v-if="!form.type"
         v-model="form.type"
         :options="options"
-        placeholder="请选择值类型"
+        placeholder="请选择节点类型"
         @change="handleSelectType"
       ></t-select>
       <t-tag
@@ -82,7 +82,9 @@ onMounted(() => {
   switch (props.parentType) {
     case "Array":
       options.value = cascaderSelectOptions.filter(
-        (option) => !option.value.startsWith("KeyValue")
+        (option) =>
+          !option.value.startsWith("KeyValue") &&
+          !["Array"].includes(option.value)
       );
       break;
     case "Object":
@@ -124,12 +126,15 @@ const { handleDoubleClick } = useDoubleClick(handleChangeType);
 const handleSelectType = (value: SelectValue) => {
   switch (value) {
     case "Number":
+    case "KeyValue_Number":
       form.value = 0;
       break;
     case "String":
+    case "KeyValue_String":
       form.value = "";
       break;
     case "Boolean":
+    case "KeyValue_Boolean":
       form.value = true;
       break;
     case " Custom":

@@ -29,7 +29,7 @@ levelPoint.forEach((point) => unUsedColor.set(point, new Set(colors)));
 const generateRandomNum = (num: number): number =>
   parseInt(Math.random() * (num + 1), 10);
 
-export const useColor = (prefix: string) => {
+export const useColor = (prefix = "bg") => {
   /**
    * 获取随机背景颜色
    * @param {number} level 嵌套层级 [0-n]

@@ -43,7 +43,10 @@
               <!-- 展开收缩 -->
               <div
                 v-if="
-                  (element.type === 'Array' || element.type === 'Object') &&
+                  (element.type === 'Array' ||
+                    element.type === 'Object' ||
+                    element.type === 'Single_Array' ||
+                    element.type === 'Single_Object') &&
                   element.children
                 "
                 class="flex vertical-center h-full mr-2 hover:cursor-pointer"
@@ -62,11 +65,18 @@
               </div>
 
               <!-- 结点key -->
-              <div v-show="element.key" class="flex hover:cursor-pointer mr-2">
-                <span @click="handleDoubleClick(element)">{{
-                  element.key
-                }}</span>
-                <span v-if="element.type === 'Array'" class="ml-1">
+              <div class="flex hover:cursor-pointer mr-2">
+                <span
+                  v-show="element.key"
+                  @click="handleDoubleClick(element)"
+                  >{{ element.key }}</span
+                >
+                <span
+                  v-if="
+                    element.type === 'Array' || element.type === 'Single_Array'
+                  "
+                  class="ml-1"
+                >
                   <t-tag theme="primary" variant="light">
                     [
                     <span v-show="element.children.length" class="font-bold"
@@ -74,7 +84,13 @@
                     >]
                   </t-tag>
                 </span>
-                <span v-else-if="element.type === 'Object'" class="ml-1">
+                <span
+                  v-else-if="
+                    element.type === 'Object' ||
+                    element.type === 'Single_Object'
+                  "
+                  class="ml-1"
+                >
                   <t-tag theme="primary" variant="light"
                     >{<span v-show="element.children.length" class="font-bold"
                       >...</span
@@ -85,14 +101,23 @@
 
               <!-- 值展示 -->
               <template
-                v-if="element.type !== 'Array' && element.type !== 'Object'"
+                v-if="
+                  element.type !== 'Array' &&
+                  element.type !== 'Object' &&
+                  element.type !== 'Single_Array' &&
+                  element.type !== 'Single_Object'
+                "
               >
                 <div>
                   <span v-show="element.key" class="mr-1 text-lg font-bold"
                     >:</span
                   >
                   <t-tag theme="primary" variant="light">
-                    {{ element.type }}
+                    {{
+                      element.type.startsWith("KeyValue_")
+                        ? element.type.split("KeyValue_")[1]
+                        : element.type
+                    }}
                   </t-tag>
                   <span class="ml-1 text-sm">{{ element.value }}</span>
                 </div>
@@ -100,7 +125,8 @@
 
               <!-- 工具栏 -->
               <default-tool-bar
-                :tools="getToolBar(element.type)"
+                v-if="element.showToolBar"
+                :tools="getToolBar(element.type, copyNodeItem)"
                 :visible="element.showToolBar"
                 @choose="(type) => handleChooseTool(type, element, list)"
               >
@@ -110,7 +136,9 @@
           </template>
 
           <!-- 子嵌套 -->
-          <template v-if="element.type === 'Array'">
+          <template
+            v-if="element.type === 'Array' || element.type === 'Single_Array'"
+          >
             <nested-tree
               v-show="!element.hideChildren"
               class="item-sub ml-8"
@@ -120,7 +148,7 @@
             >
               <template #tools="{ element: childElement, parent }">
                 <default-tool-bar
-                  :tools="getToolBar(childElement.type)"
+                  :tools="getToolBar(childElement.type, copyNodeItem)"
                   :visible="childElement.showToolBar"
                   @choose="
                     (type) => handleChooseTool(type, childElement, parent)
@@ -132,7 +160,11 @@
               </template>
             </nested-tree>
           </template>
-          <template v-else-if="element.type === 'Object'">
+          <template
+            v-else-if="
+              element.type === 'Object' || element.type === 'Single_Object'
+            "
+          >
             <nested-tree
               v-show="!element.hideChildren"
               class="item-sub ml-8"
@@ -142,7 +174,7 @@
             >
               <template #tools="{ element: childElement, parent }">
                 <default-tool-bar
-                  :tools="getToolBar(childElement.type)"
+                  :tools="getToolBar(childElement.type, copyNodeItem)"
                   :visible="childElement.showToolBar"
                   @choose="
                     (type) => handleChooseTool(type, childElement, parent)
@@ -208,14 +240,6 @@ const dragOptions = computed(() => {
   return dragDefaultOptions;
 });
 
-const baseTools = ref(["EditIcon", "DeleteIcon"]);
-const arrObjTools = ref(["AddIcon", "EditIcon", "DeleteIcon"]);
-const getToolBar = (type: string) => {
-  return type === "Array" || type === "Object"
-    ? arrObjTools.value
-    : baseTools.value;
-};
-
 // 点击展开收缩图标
 const handleClick = (element: INodeItem) => {
   element.hideChildren = !element.hideChildren;
@@ -229,7 +253,13 @@ const {
   onMouseEnter,
   onMouseLeave,
 } = useHover();
-const { handleChooseTool, handleEditKey, handleDeleteNode } = useTool();
+const {
+  copyNodeItem,
+  getToolBar,
+  handleChooseTool,
+  handleEditKey,
+  handleDeleteNode,
+} = useTool();
 const { handleDoubleClick } = useDoubleClick(handleEditKey);
 </script>
 

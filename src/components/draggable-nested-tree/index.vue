@@ -8,7 +8,7 @@ import NestedTree from "./nested-tree.vue";
 import { defineComponent, ref, onMounted, toRefs, type PropType } from "vue";
 import { useColor } from "../../utils/color-random";
 import JsonDisplayer from "../json-displayer/index.vue";
-import { initNodeItemData } from ".";
+import { initNodeItemData, useId } from ".";
 import type { INodeItem } from "./type";
 
 export default defineComponent({
@@ -34,6 +34,7 @@ export default defineComponent({
       }
     });
 
+    const { getNewId, addId } = useId();
     const initTreeData = (arr: any[], level = 0) => {
       return arr.map((item) => {
         const newItem = { ...initNodeItemData, ...item };
@@ -46,6 +47,15 @@ export default defineComponent({
 
         if (!newItem.bg) {
           newItem.bg = getRandomColor(level);
+        }
+
+        if (!newItem.id) {
+          newItem.id = getNewId();
+        } else {
+          const result = addId(newItem.id);
+          if (!result) {
+            console.warn("当前存在重复的节点id，请检查初始化数据");
+          }
         }
 
         return newItem;

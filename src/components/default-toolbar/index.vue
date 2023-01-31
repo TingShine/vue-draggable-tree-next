@@ -22,7 +22,13 @@
 <script lang="ts" setup>
 import { markRaw, type PropType, computed } from "vue";
 import { Tooltip as TTooltip } from "tdesign-vue-next";
-import { AddCircleIcon, Edit1Icon, DeleteIcon } from "tdesign-icons-vue-next";
+import {
+  AddCircleIcon,
+  Edit1Icon,
+  DeleteIcon,
+  FileCopyIcon,
+  FilePasteIcon
+} from "tdesign-icons-vue-next";
 
 const props = defineProps({
   visible: {
@@ -40,6 +46,20 @@ const toolBars = markRaw([
     component: AddCircleIcon,
     event: "add",
     tip: "新增",
+    class: "text-gray-900",
+  },
+  {
+    name: "CopyIcon",
+    component: FileCopyIcon,
+    event: "copy",
+    tip: "复制",
+    class: "text-gray-900",
+  },
+  {
+    name: "PasteIcon",
+    component: FilePasteIcon,
+    event: "paste",
+    tip: "粘贴",
     class: "text-gray-900",
   },
   {
