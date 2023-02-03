@@ -1,19 +1,26 @@
 <template>
-  <draggable-tree :init-data="list" />
-
+  <draggable-tree :init-data="obj" @change="handleChange" />
 </template>
 
 <script lang="ts" setup>
 import { ref } from "vue";
 import DraggableTree from "./components/draggable-nested-tree/index.vue";
 
-enum Colors {
-  Yellow = "yellow",
-  Green = "emerald",
-  Blue = "blue",
-  Pink = "pink",
-  Gray = "grey",
-}
+const handleChange = (data: any) => {
+  console.log(data);
+};
+
+const obj = {
+  Shrek: {},
+  Fiona: {
+    "Prince Charming": {
+      LordFarquad: "测试1",
+      LordLogo: "测试2",
+    },
+  },
+  Donkey: [],
+  Yes: [],
+};
 
 const list = ref([
   {
@@ -21,7 +28,7 @@ const list = ref([
     key: "Shrek",
     children: [],
     type: "Object",
-    bg: 'bg-cyan-50'
+    bg: "bg-cyan-50",
   },
   {
     id: 2,
@@ -37,14 +44,14 @@ const list = ref([
             id: 4,
             key: "LordFarquad",
             type: "KeyValue_String",
-            value: '测试1',
+            value: "测试1",
             children: [],
           },
           {
             id: 7,
             key: "LordLogo",
             type: "KeyValue_String",
-            value: '测试2',
+            value: "测试2",
             children: [],
           },
         ],
@@ -55,7 +62,7 @@ const list = ref([
     id: 3,
     key: "Donkey",
     type: "Array",
-    bg: 'bg-violet-50',
+    bg: "bg-violet-50",
     children: [],
   },
   {

@@ -5,73 +5,64 @@
 
 <script lang="ts">
 import NestedTree from "./nested-tree.vue";
-import { defineComponent, ref, onMounted, toRefs, type PropType, computed } from "vue";
-import { useColor } from "../../utils/color-random";
+import {
+  defineComponent,
+  ref,
+  onMounted,
+  toRefs,
+  type PropType,
+  computed,
+  watchEffect,
+} from "vue";
 import JsonDisplayer from "../json-displayer/index.vue";
-import { initNodeItemData, useId } from ".";
 import type { INodeItem } from "./type";
-import { useTreeData } from "./useParse";
+import { useTreeData } from ".";
 
 export default defineComponent({
   name: "DraggableTree",
+  emits: ["change", "custom-add"],
   components: {
     NestedTree,
     JsonDisplayer,
   },
   props: {
     initData: {
+      type: Object as PropType<any>,
+      default() {
+        return {};
+      },
+    },
+    initTreeData: {
       type: Array as PropType<any[]>,
-      required: true,
+      required: false,
     },
   },
-  setup(props) {
-    const { getParsedTreeData } = useTreeData()
-    const { initData } = toRefs(props);
-
+  setup(props, { emit }) {
+    const { getParsedTreeData, generateTreeData, cpmpleteTreeData } =
+      useTreeData();
+    const { initData, initTreeData } = toRefs(props);
     const treeData = ref<any[]>([]);
     const parsedTreeData = computed(() => getParsedTreeData(treeData.value));
-
-    const { getRandomColor } = useColor("bg");
-    onMounted(() => {
-      if (initData.value.length) {
-        treeData.value = initTreeData(initData.value);
+    watchEffect(() => {
+      if (treeData.value.length) {
+        emit("change", parsedTreeData.value);
       }
     });
 
-    const { getNewId, addId } = useId();
-    const initTreeData = (arr: any[], level = 0) => {
-      return arr.map((item) => {
-        const newItem = { ...initNodeItemData, ...item };
-        if (
-          newItem.type === "Array" ||
-          (newItem.type === "Object" && Array.isArray(newItem.children))
-        ) {
-          newItem.children = initTreeData(newItem.children, level + 1);
-        }
-
-        if (!newItem.bg) {
-          newItem.bg = getRandomColor(level);
-        }
-
-        if (!newItem.id) {
-          newItem.id = getNewId();
-        } else {
-          const result = addId(newItem.id);
-          if (!result) {
-            console.warn("当前存在重复的节点id，请检查初始化数据");
-          }
-        }
-
-        return newItem;
-      });
-    };
+    onMounted(() => {
+      if (initTreeData.value) {
+        treeData.value = cpmpleteTreeData(initTreeData.value);
+      } else {
+        treeData.value = generateTreeData(initData.value);
+      }
+    });
 
     const handleCustomAdd = (
       element: INodeItem,
       list: INodeItem[],
       params: any
     ) => {
-      console.log(element, list, params);
+      emit("custom-add", element, list, params);
     };
 
     return {
