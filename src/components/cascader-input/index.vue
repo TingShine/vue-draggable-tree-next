@@ -81,15 +81,19 @@ const options = ref<any[]>([]);
 onMounted(() => {
   switch (props.parentType) {
     case "Array":
+    case "Single_Array":
       options.value = cascaderSelectOptions.filter(
         (option) =>
-          !option.value.startsWith("KeyValue") &&
-          !["Array"].includes(option.value)
+          !option.value.startsWith("KeyValue_") &&
+          !["Array", "Object"].includes(option.value)
       );
       break;
     case "Object":
+    case "Single_Object":
       options.value = cascaderSelectOptions.filter(
-        (option) => !["String", "Number", "Boolean"].includes(option.value)
+        (option) =>
+          !["String", "Number", "Boolean"].includes(option.value) &&
+          !option.value.startsWith("Single_")
       );
       break;
     default:

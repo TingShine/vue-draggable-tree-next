@@ -1,11 +1,14 @@
 import type { IAddNodeType } from "@/utils/config";
 
-type NodeItemType =
+export type INodeItemType =
   | "Array"
   | "Object"
   | "String"
   | "Number"
   | "Boolean"
+  | "KeyValue_String"
+  | "KeyValue_Number"
+  | "KeyValue_Boolean"
   | "Single_Array"
   | "Single_Object"
   | "Custom";
@@ -14,13 +17,13 @@ export interface ITempNode extends IInitDataOptionalItem {
   id: number;
   temp: boolean;
   key?: string;
-  type?: NodeItemType;
+  type?: INodeItemType;
 }
 
 export interface IInitDataItem extends IInitDataOptionalItem {
   id: number;
   key: string;
-  type: NodeItemType;
+  type: INodeItemType;
 }
 
 export interface IInitDataOptionalItem {
@@ -39,7 +42,7 @@ export interface IInitDataOptionalItem {
 export type INodeItem = IInitDataItem | ITempNode;
 
 export interface IAddNodeParams {
-  type: IAddNodeType;
+  type: INodeItemType;
   value: string | number | boolean;
   key?: string;
   parentType?: "Array" | "Object" | "Single_Array" | "Single_Object";

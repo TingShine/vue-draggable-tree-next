@@ -26,24 +26,25 @@ const list = ref([
   {
     id: 2,
     key: "Fiona",
-    type: "Array",
+    type: "Object",
     children: [
       {
         id: 5,
         key: "Prince Charming",
-        type: "Array",
+        type: "Object",
         children: [
           {
             id: 4,
             key: "LordFarquad",
-            type: "String",
+            type: "KeyValue_String",
+            value: '测试1',
             children: [],
           },
           {
             id: 7,
             key: "LordLogo",
-            type: "String",
-            value: '测试',
+            type: "KeyValue_String",
+            value: '测试2',
             children: [],
           },
         ],

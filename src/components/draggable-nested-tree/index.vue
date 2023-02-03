@@ -1,15 +1,16 @@
 <template>
   <nested-tree :list="treeData" @custom-add="handleCustomAdd"></nested-tree>
-  <json-displayer :value="treeData" title="对应数据"></json-displayer>
+  <json-displayer :value="parsedTreeData" title="对应数据"></json-displayer>
 </template>
 
 <script lang="ts">
 import NestedTree from "./nested-tree.vue";
-import { defineComponent, ref, onMounted, toRefs, type PropType } from "vue";
+import { defineComponent, ref, onMounted, toRefs, type PropType, computed } from "vue";
 import { useColor } from "../../utils/color-random";
 import JsonDisplayer from "../json-displayer/index.vue";
 import { initNodeItemData, useId } from ".";
 import type { INodeItem } from "./type";
+import { useTreeData } from "./useParse";
 
 export default defineComponent({
   name: "DraggableTree",
@@ -24,9 +25,12 @@ export default defineComponent({
     },
   },
   setup(props) {
+    const { getParsedTreeData } = useTreeData()
     const { initData } = toRefs(props);
 
     const treeData = ref<any[]>([]);
+    const parsedTreeData = computed(() => getParsedTreeData(treeData.value));
+
     const { getRandomColor } = useColor("bg");
     onMounted(() => {
       if (initData.value.length) {
@@ -72,6 +76,7 @@ export default defineComponent({
 
     return {
       treeData,
+      parsedTreeData,
       handleCustomAdd,
     };
   },

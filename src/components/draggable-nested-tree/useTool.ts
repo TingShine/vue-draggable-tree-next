@@ -2,21 +2,81 @@ import { useColor } from "@/utils/color-random";
 import { MessagePlugin } from "tdesign-vue-next";
 import { ref } from "vue";
 import { useId } from ".";
-import type { INodeItem } from "./type";
+import type { INodeItem, INodeItemType } from "./type";
 
 const isArrOrObjType = (type: string): boolean =>
   ["Array", "Object", "Single_Array", "Single_Object"].includes(type);
 
 const copyNodeItem = ref<null | INodeItem>(null);
+const baseTools = ["CopyIcon", "EditIcon", "DeleteIcon"];
+const arrObjTools = ["AddIcon", "CopyIcon", "EditIcon", "DeleteIcon"];
+
+// 判断是否能添加子节点
+const canAddChildNode = (
+  childType: INodeItemType,
+  parentType: INodeItemType
+): boolean => {
+  const isParentArray = parentType === "Array" || parentType === "Single_Array";
+  const isParentObject =
+    parentType === "Object" || parentType === "Single_Object";
+
+  if (!isParentArray && !isParentObject) {
+    return false;
+  }
+
+  const supportChildTypes: string[] = [];
+  if (isParentArray) {
+    supportChildTypes.push(
+      ...["String", "Number", "Boolean", "Single_Array", "Single_Object"]
+    );
+  } else if (isParentObject) {
+    supportChildTypes.push(
+      ...[
+        "KeyValue_String",
+        "KeyValue_Number",
+        "KeyValue_Boolean",
+        "Array",
+        "Object",
+      ]
+    );
+  }
+  if (!supportChildTypes.includes(childType)) {
+    return false;
+  }
+
+  return true;
+};
+
+// 生成新的节点
+const generateNewNode = (element: INodeItem): INodeItem => {
+  const { getNewId } = useId();
+  const { getRandomColor } = useColor("bg");
+
+  const newNode = {
+    ...element,
+    id: getNewId(),
+    bg: getRandomColor(2),
+  };
+  if (newNode.children && newNode.children.length) {
+    newNode.children = newNode.children.map((node) => generateNewNode(node));
+  }
+
+  return newNode;
+};
+
 // 工具栏
 export const useTool = () => {
-  const baseTools = ref(["CopyIcon", "EditIcon", "DeleteIcon"]);
-  const arrObjTools = ref(["AddIcon", "CopyIcon", "EditIcon", "DeleteIcon"]);
-  const getToolBar = (type: string, copyItem: null | INodeItem) => {
-    const tools = isArrOrObjType(type) ? arrObjTools.value : baseTools.value;
-    return copyItem ? [...tools, "PasteIcon"] : tools;
+  // 获取工具栏列表
+  const getToolBar = (type: INodeItemType, copyItem: null | INodeItem) => {
+    const tools = isArrOrObjType(type) ? arrObjTools : baseTools;
+    if (copyItem && canAddChildNode(copyItem.type!, type)) {
+      return [...tools, "PasteIcon"]
+    }
+
+    return tools;
   };
 
+  // 删除节点
   const handleDeleteNode = (element: INodeItem, parent: INodeItem[] = []) => {
     const index = parent.findIndex((item) => item.id === element.id);
     if (index !== -1) {
@@ -24,6 +84,7 @@ export const useTool = () => {
     }
   };
 
+  // 新增节点
   const handleAddNode = (element: INodeItem) => {
     const { type } = element;
     if (type && isArrOrObjType(type)) {
@@ -45,44 +106,43 @@ export const useTool = () => {
     }
   };
 
+  // 编辑节点key值
   const handleEditKey = (element: INodeItem) => {
     element.isKeyEditing = true;
   };
 
+  // 复制节点
   const handleCopyNode = (element: INodeItem) => {
     copyNodeItem.value = element;
     element.showToolBar = false;
     MessagePlugin.success("复制成功");
   };
 
+  // 粘贴节点
   const handlePasteNode = (element: INodeItem) => {
     if (!copyNodeItem.value) {
       return;
     }
 
-    const { type: parentType } = element;
-    const { type } = copyNodeItem.value!;
-    const newNode = { ...copyNodeItem.value };
+    const { type: parentType, children } = element;
+    const { type, key } = copyNodeItem.value!;
 
-    if (parentType === "Array") {
-      if (type?.startsWith("KeyVal")) {
-        MessagePlugin.error("键值对节点无法粘贴在当前父节点下");
-        return;
-      }
-    } else if (parentType === "Object") {
-      if (type && ["String", "Number", "Boolean"].includes(type)) {
-        MessagePlugin.error("基础类型节点无法粘贴在当前父节点下");
+    if (!canAddChildNode(type!, parentType!)) {
+      MessagePlugin.error("粘贴失败，该节点类型无法粘贴在当前父节点下");
+      return;
+    }
+
+    if (
+      type &&
+      (type?.startsWith("KeyValue_") || ["Array", "Object"].includes(type))
+    ) {
+      if (children?.some((childNode) => childNode.key === key)) {
+        MessagePlugin.error("粘贴失败，当前父节点已存在该key值");
         return;
       }
     }
 
-    const { getNewId } = useId();
-    const { getRandomColor } = useColor("bg");
-    Object.assign(newNode, {
-      id: getNewId(),
-      bg: getRandomColor(2),
-    });
-    element.children!.unshift(newNode);
+    element.children!.unshift(generateNewNode(copyNodeItem.value));
   };
 
   // 点击工具栏

@@ -229,8 +229,6 @@ const dragDefaultOptions = reactive({
 });
 const dragOptions = computed(() => {
   if (props.list.length === 1) {
-    console.log(props.list);
-
     const lastItem = props.list[0];
     if (lastItem.type !== "Array" || lastItem.type !== "Object") {
       return Object.assign({ put: false }, dragDefaultOptions);
