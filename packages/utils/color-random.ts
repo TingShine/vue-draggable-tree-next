@@ -27,7 +27,7 @@ const unUsedColor = new Map<number, Set<string>>();
 levelPoint.forEach((point) => unUsedColor.set(point, new Set(colors)));
 
 const generateRandomNum = (num: number): number =>
-  parseInt(Math.random() * (num + 1), 10);
+  Math.floor(Math.random() * (num + 1));
 
 export const useColor = (prefix = "bg") => {
   /**
