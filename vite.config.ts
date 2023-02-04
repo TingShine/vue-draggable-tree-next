@@ -6,14 +6,10 @@ import svgLoader from "vite-svg-loader";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    vue(),
-    vueJsx(),
-    svgLoader()
-  ],
+  plugins: [vue(), vueJsx(), svgLoader()],
   resolve: {
     alias: {
-      "@": fileURLToPath(new URL("./src", import.meta.url)),
+      "@": fileURLToPath(new URL("./packages", import.meta.url)),
     },
   },
 });
