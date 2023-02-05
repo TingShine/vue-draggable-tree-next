@@ -1,5 +1,3 @@
-import type { IAddNodeType } from "@/utils/config";
-
 export type INodeItemType =
   | "Array"
   | "Object"

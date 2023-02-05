@@ -1,10 +1,15 @@
 <template>
   <draggable-tree :init-tree-data="initTreeData" @change="handleChange" />
+  <json-displayer
+    title="初始化数据为树结构数据"
+    :value="displayData"
+  ></json-displayer>
 </template>
 
 <script lang="ts" setup>
 import { ref } from "vue";
 import DraggableTree from "../packages/components/draggable-nested-tree/index.vue";
+import JsonDisplayer from "./json-displayer/index.vue";
 
 const initTreeData = ref([
   {
@@ -57,7 +62,9 @@ const initTreeData = ref([
   },
 ]);
 
+const displayData = ref([]);
+
 const handleChange = (data: any) => {
-  console.log(data);
+  displayData.value = data;
 };
 </script>

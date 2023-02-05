@@ -1,6 +1,5 @@
 <template>
-  <nested-tree :list="treeData" @custom-add="handleCustomAdd"></nested-tree>
-  <json-displayer :value="parsedTreeData" title="对应数据"></json-displayer>
+  <nested-tree :list="treeData" @custom-add="handleCustomAdd"> </nested-tree>
 </template>
 
 <script lang="ts">
@@ -14,7 +13,6 @@ import {
   computed,
   watchEffect,
 } from "vue";
-import JsonDisplayer from "../json-displayer/index.vue";
 import type { INodeItem } from "./type";
 import { useTreeData } from ".";
 
@@ -23,7 +21,6 @@ export default defineComponent({
   emits: ["change", "custom-add"],
   components: {
     NestedTree,
-    JsonDisplayer,
   },
   props: {
     initData: {

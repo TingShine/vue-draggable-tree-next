@@ -146,17 +146,8 @@
               parent-type="Array"
               @custom-add="handleCustomAdd"
             >
-              <template #tools="{ element: childElement, parent }">
-                <default-tool-bar
-                  :tools="getToolBar(childElement.type, copyNodeItem)"
-                  :visible="childElement.showToolBar"
-                  @choose="
-                    (type) => handleChooseTool(type, childElement, parent)
-                  "
-                >
-                  <slot name="tools" :element="childElement" :parent="parent">
-                  </slot>
-                </default-tool-bar>
+              <template v-for="slot in Object.keys(slots)" #[slot]="scope">
+                <slot :name="slot" v-bind="scope"></slot>
               </template>
             </nested-tree>
           </template>
@@ -172,17 +163,8 @@
               parent-type="Object"
               @custom-add="handleCustomAdd"
             >
-              <template #tools="{ element: childElement, parent }">
-                <default-tool-bar
-                  :tools="getToolBar(childElement.type, copyNodeItem)"
-                  :visible="childElement.showToolBar"
-                  @choose="
-                    (type) => handleChooseTool(type, childElement, parent)
-                  "
-                >
-                  <slot name="tools" :element="childElement" :parent="parent">
-                  </slot>
-                </default-tool-bar>
+              <template v-for="slot in Object.keys(slots)" #[slot]="scope">
+                <slot :name="slot" v-bind="scope"></slot>
               </template>
             </nested-tree>
           </template>
@@ -196,15 +178,14 @@
 import Draggable from "vuedraggable";
 import DefaultToolBar from "../default-toolbar/index.vue";
 import { useDoubleClick } from "../../utils/double-click";
-import { reactive, type PropType, computed, ref } from "vue";
-import type { INodeItem } from "./type";
+import { reactive, type PropType, computed, useSlots } from "vue";
 import {
   CaretDownSmallIcon,
   CaretRightSmallIcon,
 } from "tdesign-icons-vue-next";
 import CascaderInput from "../cascader-input/index.vue";
-import { initNodeItemData, useAddNode, useHover, useTool } from ".";
-import { Tag as TTag, MessagePlugin } from "tdesign-vue-next";
+import { useAddNode, useHover, useTool, type INodeItem } from ".";
+import { Tag as TTag } from "tdesign-vue-next";
 
 const props = defineProps({
   list: {
@@ -218,6 +199,7 @@ const props = defineProps({
 });
 
 const $emit = defineEmits(["customAdd"]);
+const slots = useSlots();
 
 //
 const dragDefaultOptions = reactive({

@@ -4,3 +4,4 @@ export * from "./useHover";
 export * from "./useId";
 export * from "./config";
 export * from "./useTreeData";
+export * from "./type";
