@@ -23,13 +23,13 @@ const colors = [
   "rose",
 ];
 
+const unUsedColor = new Map<number, Set<string>>();
+levelPoint.forEach((point) => unUsedColor.set(point, new Set(colors)));
+
 const generateRandomNum = (num: number): number =>
-  parseInt(Math.random() * (num + 1), 10);
+  Math.floor(Math.random() * (num + 1));
 
-export const useColor = (prefix: string) => {
-  const unUsedColor = new Map<number, Set<string>>();
-  levelPoint.forEach((point) => unUsedColor.set(point, new Set(colors)));
-
+export const useColor = (prefix = "bg") => {
   /**
    * 获取随机背景颜色
    * @param {number} level 嵌套层级 [0-n]
@@ -51,7 +51,7 @@ export const useColor = (prefix: string) => {
 
     const color = colorArr[generateRandomNum(colorArr.length - 1)];
     colorSet.delete(color);
-    return `${prefix ? `${prefix}-` : ""}${color}-${levelPoint[level]}`;
+    return `${prefix ? `${prefix}-` : ""}${color}-${levelPoint[index]}`;
   };
 
   return {

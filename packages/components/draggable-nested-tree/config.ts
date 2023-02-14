@@ -7,5 +7,6 @@ export const initNodeItemData: IInitDataOptionalItem = {
   isShowBg: false,
   hideChildren: false,
   temp: false,
-  customData: {}
+  customData: {},
+  children: [],
 };

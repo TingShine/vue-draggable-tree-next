@@ -2,13 +2,18 @@
   <slot>
     <transition name="slide-fade">
       <div v-show="visible" class="ml-4 flex">
-        <component
+        <t-tooltip
           v-for="tool in toolList"
           :key="tool.name"
-          :is="tool.component"
-          class="hover:cursor-pointer hover:scale-125 mr-1 top-0 left-0 translate-y-1"
-          @click="handleClick(tool.event)"
-        ></component>
+          :content="tool.tip"
+        >
+          <component
+            :is="tool.component"
+            class="hover:cursor-pointer hover:scale-125 mr-1 top-0 left-0 translate-y-1 font-bold text-lg"
+            :class="tool.class"
+            @click="handleClick(tool.event)"
+          ></component>
+        </t-tooltip>
       </div>
     </transition>
   </slot>
@@ -16,9 +21,14 @@
 
 <script lang="ts" setup>
 import { markRaw, type PropType, computed } from "vue";
-import EditIcon from "@/assets/icons/edit.svg";
-import AddIcon from "@/assets/icons/add.svg";
-import DeleteIcon from "@/assets/icons/delete.svg";
+import { Tooltip as TTooltip } from "tdesign-vue-next";
+import {
+  AddCircleIcon,
+  Edit1Icon,
+  DeleteIcon,
+  FileCopyIcon,
+  FilePasteIcon
+} from "tdesign-icons-vue-next";
 
 const props = defineProps({
   visible: {
@@ -33,18 +43,38 @@ const props = defineProps({
 const toolBars = markRaw([
   {
     name: "AddIcon",
-    component: AddIcon,
+    component: AddCircleIcon,
     event: "add",
+    tip: "新增",
+    class: "text-gray-900",
+  },
+  {
+    name: "CopyIcon",
+    component: FileCopyIcon,
+    event: "copy",
+    tip: "复制",
+    class: "text-gray-900",
+  },
+  {
+    name: "PasteIcon",
+    component: FilePasteIcon,
+    event: "paste",
+    tip: "粘贴",
+    class: "text-gray-900",
   },
   {
     name: "EditIcon",
-    component: EditIcon,
+    component: Edit1Icon,
     event: "edit",
+    tip: "编辑",
+    class: "text-gray-900",
   },
   {
     name: "DeleteIcon",
     component: DeleteIcon,
     event: "delete",
+    tip: "删除",
+    class: "text-rose-600",
   },
 ]);
 const toolList = computed(() =>
@@ -53,7 +83,7 @@ const toolList = computed(() =>
 
 const $emit = defineEmits(["choose"]);
 const handleClick = (type: string) => {
-  $emit('choose', type)
+  $emit("choose", type);
 };
 </script>
 <style scoped>

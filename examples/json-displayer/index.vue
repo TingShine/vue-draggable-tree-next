@@ -1,6 +1,6 @@
 <template>
   <div class="bg-amber-100 rounded-md shadow-xl opcacity-95 p-4 text-sm">
-    <h3 class="text-lg font-bold">{{ title }}</h3>
+    <h3 class="text-lg font-bold mb-2">{{ title }}</h3>
     <pre>{{ valueString }}</pre>
   </div>
 </template>
