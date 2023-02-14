@@ -1,6 +1,6 @@
 {
   "name": "vue-draggable-tree-next",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "The json tree built based on vue3 supports node dragging, adding, editing and deleting, etc.",
   "author": {
     "name": "TingShine",
