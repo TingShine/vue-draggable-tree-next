@@ -1,9 +1,12 @@
 <template>
-  <draggable-tree :init-data="initObject" @change="handleChange" />
-  <json-displayer
-    title="初始化数据为对象"
-    :value="displayData"
-  ></json-displayer>
+  <div class="flex flex-wrap">
+    <draggable-tree :init-data="initObject" @change="handleChange" />
+    <json-displayer
+    class="w-full"
+      title="初始化数据为对象"
+      :value="displayData"
+    ></json-displayer>
+  </div>
 </template>
 
 <script lang="ts" setup>
