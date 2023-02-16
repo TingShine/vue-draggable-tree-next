@@ -86,7 +86,7 @@ export const useAddNode = ($emit: Function) => {
   const addBaseNode = (element: ITempNode, params: IAddNodeParams) => {
     const { type, value, parentType } = params;
 
-    if (parentType !== "Array") {
+    if (!["Array", "Single_Array"].includes(parentType!)) {
       MessagePlugin.error("当前父节点不为数组，无法添加数值节点");
       return;
     }

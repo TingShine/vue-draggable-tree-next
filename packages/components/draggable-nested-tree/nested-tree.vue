@@ -1,10 +1,11 @@
 <template>
   <draggable
-    v-bind="dragOptions"
+    v-bind="dragDefaultOptions"
     tag="div"
     :list="list"
     class="item-container"
     item-key="id"
+    :move="handleMoveCallback"
   >
     <template #item="{ element }">
       <div
@@ -178,13 +179,13 @@
 import Draggable from "vuedraggable";
 import DefaultToolBar from "../default-toolbar/index.vue";
 import { useDoubleClick } from "../../utils/double-click";
-import { reactive, type PropType, computed, useSlots } from "vue";
+import { reactive, type PropType, useSlots } from "vue";
 import {
   CaretDownSmallIcon,
   CaretRightSmallIcon,
 } from "tdesign-icons-vue-next";
 import CascaderInput from "../cascader-input/index.vue";
-import { useAddNode, useHover, useTool, type INodeItem } from ".";
+import { useAddNode, useHover, useMove, useTool, type INodeItem } from ".";
 import { Tag as TTag } from "tdesign-vue-next";
 
 const props = defineProps({
@@ -194,30 +195,19 @@ const props = defineProps({
   },
   parentType: {
     type: String,
-    default: "",
+    default: "Single_Object",
   },
 });
 
 const $emit = defineEmits(["customAdd"]);
 const slots = useSlots();
 
-//
 const dragDefaultOptions = reactive({
   animation: 0,
   group: "DraggableTree",
   disabled: false,
   put: true,
   ghostClass: "ghost",
-});
-const dragOptions = computed(() => {
-  if (props.list.length === 1) {
-    const lastItem = props.list[0];
-    if (lastItem.type !== "Array" || lastItem.type !== "Object") {
-      return Object.assign({ put: false }, dragDefaultOptions);
-    }
-  }
-
-  return dragDefaultOptions;
 });
 
 // 点击展开收缩图标
@@ -241,11 +231,11 @@ const {
   handleDeleteNode,
 } = useTool();
 const { handleDoubleClick } = useDoubleClick(handleEditKey);
+
+const { handleMoveCallback } = useMove();
 </script>
 
 <style scoped>
-.item-container {
-}
 .item {
   margin: 10px;
   border: solid black 1px;

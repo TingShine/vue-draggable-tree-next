@@ -12,7 +12,7 @@ const baseTools = ["CopyIcon", "EditIcon", "DeleteIcon"];
 const arrObjTools = ["AddIcon", "CopyIcon", "EditIcon", "DeleteIcon"];
 
 // 判断是否能添加子节点
-const canAddChildNode = (
+export const canAddChildNode = (
   childType: INodeItemType,
   parentType: INodeItemType
 ): boolean => {
