@@ -15,6 +15,7 @@ import {
 } from "vue";
 import type { INodeItem } from "./type";
 import { useTreeData } from ".";
+import { useData } from "./useData";
 
 export default defineComponent({
   name: "DraggableTree",
@@ -38,7 +39,7 @@ export default defineComponent({
     const { getParsedTreeData, generateTreeData, cpmpleteTreeData } =
       useTreeData();
     const { initData, initTreeData } = toRefs(props);
-    const treeData = ref<any[]>([]);
+    const { treeData } = useData()
     const parsedTreeData = computed(() => getParsedTreeData(treeData.value));
     watchEffect(() => {
       if (treeData.value.length) {

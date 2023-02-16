@@ -5,3 +5,4 @@ export * from "./useId";
 export * from "./config";
 export * from "./useTreeData";
 export * from "./type";
+export * from "./useMove";
